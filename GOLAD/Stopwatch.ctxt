@@ -1,0 +1,16 @@
+#BlueJ class context
+comment0.target=Stopwatch
+comment0.text=\r\n\ Write\ a\ description\ of\ class\ Timer\ here.\r\n\ \r\n\ @author\ (your\ name)\ \r\n\ @version\ (a\ version\ number\ or\ a\ date)\r\n
+comment1.params=
+comment1.target=Stopwatch()
+comment2.params=
+comment2.target=void\ reset()
+comment3.params=
+comment3.target=long\ getElapsedTime()
+comment4.params=
+comment4.target=int[]\ getStndTime()
+comment5.params=
+comment5.target=void\ pause()
+comment6.params=
+comment6.target=void\ unpause()
+numComments=7

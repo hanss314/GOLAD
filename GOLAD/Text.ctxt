@@ -1,0 +1,13 @@
+#BlueJ class context
+comment0.target=Text
+comment0.text=\r\n\ Write\ a\ description\ of\ class\ text\ here.\r\n\ \r\n\ @author\ (your\ name)\ \r\n\ @version\ (a\ version\ number\ or\ a\ date)\r\n
+comment1.params=text\ color\ size\ follow
+comment1.target=Text(java.lang.String,\ java.awt.Color,\ int,\ greenfoot.Actor)
+comment2.params=text\ color\ size
+comment2.target=Text(java.lang.String,\ java.awt.Color,\ int)
+comment3.params=text\ size
+comment3.target=Text(java.lang.String,\ int)
+comment4.params=
+comment4.target=void\ act()
+comment4.text=\r\n\ Act\ -\ do\ whatever\ the\ text\ wants\ to\ do.\ This\ method\ is\ called\ whenever\r\n\ the\ 'Act'\ or\ 'Run'\ button\ gets\ pressed\ in\ the\ environment.\r\n
+numComments=5
