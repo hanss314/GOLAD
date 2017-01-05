@@ -7,5 +7,9 @@ watch cary's video for instructions on how to play.
 https://www.youtube.com/watch?v=f8RDs2u92MI
 https://www.youtube.com/watch?v=SKQJlvqhDzQ
 
+I made a few changes. Changes Incude:
+New boards do not generate symmetrically(I should probably add this)
+You can not save up moves. If you decide to create a cell, you simply lose your next turn.
+
 open .jar file if you just want to play.
 
