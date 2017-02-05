@@ -1,11 +1,15 @@
 import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
 import java.util.ArrayList;
 import java.lang.Integer;
+import java.util.Arrays;
 import java.io.PrintWriter;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import javax.swing.JOptionPane;
+import javax.swing.JFrame;
+import java.lang.String;
 /**
  * Write a description of class MyWorld here.
  * 
@@ -14,8 +18,8 @@ import java.io.IOException;
  */
 public class MyWorld extends World
 {
-    int[] birth = {3};
-    int[] survive = {2,3};
+    ArrayList<Integer> birth = new ArrayList<>(Arrays.asList(3));
+    ArrayList<Integer> survive = new ArrayList<>(Arrays.asList(2,3));
     ArrayList<Tile> reds = new ArrayList();
     ArrayList<Tile> blues = new ArrayList();
     Tile[][] allTiles = new Tile[20][20];
@@ -31,8 +35,14 @@ public class MyWorld extends World
     Text blueTime = null;
     int moveNumber = 0;
     int totalMoves = 0;
+    int sacrafices = 0;
+    boolean hasCreated = false;
     Text moveDisplay = null;
     Text winText = null;
+    int screen = 0;
+    String rules = "B3/S23";
+    int setColor = 0;
+    Image brushImage = new Image("Tiles/dead.jpg");
     /**
      * Constructor for objects of class MyWorld.
      * 
@@ -40,29 +50,20 @@ public class MyWorld extends World
     public MyWorld()
     {
         super(870, 600, 1); 
-        createGrid();
-        randomizeGrid();
-        addObject(new Image("redDisplay.jpg"),735,45);
-        addObject(new Image("blueDisplay.jpg"),735,136);
-        addObject(new Text("Player 1",30),660,20);
-        addObject(new Text("Cells:",30),650,70);
-        addObject(new Text("Player 2",30),660,111);
-        addObject(new Text("Cells:",30),650,161);
-        addObject(new EndMove(this),735,240);
-        addObject(new Undo(this),661,360);
-        addObject(new Redo(this),809,360);
-        addObject(new NewGame(this),661,470);
-        addObject(new LoadGame(this),809,470);
-        displayMoves();
-        updateNumbers();
-        redTimer.reset();
-        blueTimer.reset();
-        blueTimer.pause();
-        writeBoard("save"+Integer.toString(moveNumber));
+        mainMenu();
+        //playGame();
+        //sandbox();
         Greenfoot.start();
     }
     public void act(){
-        drawTime();
+        if(screen == 1){
+            drawTime();
+        }
+    }
+    public void mainMenu(){
+        killAll();
+        addObject(new StartGame(this), 435, 150);
+        addObject(new Sandbox(this), 435, 250);
     }
     public void createGrid(){
         for(int x = 0; x < 20; x++){
@@ -130,15 +131,23 @@ public class MyWorld extends World
         displayMoves();
         writeBoard("save"+Integer.toString(moveNumber));
         if(reds.size()==0 && blues.size()==0){
-            winText = new Text("It's a tie!",40);
-            addObject(winText,735,550);
+            JFrame frame = new JFrame("Game Over");
+            JOptionPane.showMessageDialog(frame, "It's a tie!");
+            redTimer.pause();
+            blueTimer.pause();
         }else if(reds.size()==0){
-            winText = new Text("Blue Wins!",40);
-            addObject(winText,735,550);
+            JFrame frame = new JFrame("Game Over");
+            JOptionPane.showMessageDialog(frame, "Blue Wins!");
+            redTimer.pause();
+            blueTimer.pause();
         }else if(blues.size()==0){
-            winText = new Text("Red Wins!",40);
-            addObject(winText,735,550);
+            JFrame frame = new JFrame("Game Over");
+            JOptionPane.showMessageDialog(frame, "Red Wins!");
+            redTimer.pause();
+            blueTimer.pause();
         }
+        sacrafices = 0;
+        hasCreated = false;
     }
     public void randomizeGrid(){
         for(int x = 0; x<20; x++){
@@ -203,6 +212,14 @@ public class MyWorld extends World
         addObject(redNumber,700,70);
         addObject(blueNumber,700,161);
     }
+    public void sandboxTurn(){
+        iterate();
+        updateNumbers();
+        moveNumber++;
+        totalMoves = moveNumber;  
+        displayMoves();
+        writeBoard("save"+Integer.toString(moveNumber));
+    }
     public void drawTime(){
         int[] redTimes = redTimer.getStndTime();
         int[] blueTimes = blueTimer.getStndTime();
@@ -218,6 +235,9 @@ public class MyWorld extends World
             if(i==3){
                 redS+=Integer.toString(redTimes[i]);
                 blueS+=Integer.toString(blueTimes[i]);
+            }else if(i==2){
+                redS+=(Integer.toString(redTimes[i])+".");
+                blueS+=(Integer.toString(blueTimes[i])+".");
             }else{
                 redS+=(Integer.toString(redTimes[i])+":");
                 blueS+=(Integer.toString(blueTimes[i])+":");
@@ -334,8 +354,97 @@ public class MyWorld extends World
         blueTimer.reset();
         blueTimer.pause();
         writeBoard("save"+Integer.toString(moveNumber));
-        if(winText != null){
-            removeObject(winText);
+    }
+    public void clearBoard(){
+        moveNumber = 0;
+        totalMoves = 0;
+        createGrid();
+        displayMoves();
+        updateNumbers();        
+        writeBoard("save"+Integer.toString(moveNumber));
+    }
+    public void killAll(){
+        removeObjects(getObjects(Actor.class));
+    }
+    public void playGame(){
+        killAll();
+        createGrid();
+        randomizeGrid();
+        addObject(new Image("Backgrounds/redDisplay.jpg"),735,45);
+        addObject(new Image("Backgrounds/blueDisplay.jpg"),735,136);
+        addObject(new Text("Player 1",30),660,20);
+        addObject(new Text("Cells:",30),650,70);
+        addObject(new Text("Player 2",30),660,111);
+        addObject(new Text("Cells:",30),650,161);
+        addObject(new EndMove(this),735,240);
+        addObject(new Undo(this),661,360);
+        addObject(new Redo(this),809,360);
+        addObject(new NewGame(this),661,470);
+        addObject(new LoadGame(this),809,470);
+        addObject(new ChangeRules(this),735,550);
+        displayMoves();
+        updateNumbers();
+        redTimer.reset();
+        blueTimer.reset();
+        blueTimer.pause();
+        writeBoard("save"+Integer.toString(moveNumber));
+        screen = 1;
+    }
+    public void sandbox(){
+        killAll();
+        createGrid();
+        addObject(new Image("Backgrounds/redDisplay.jpg"),735,45);
+        addObject(new Image("Backgrounds/blueDisplay.jpg"),735,136);
+        addObject(new Text("Player 1",30),660,20);
+        addObject(new Text("Cells:",30),650,70);
+        addObject(new Text("Player 2",30),660,111);
+        addObject(new Text("Cells:",30),650,161);
+        addObject(new Iterate(this),663,240);
+        addObject(new Dead(this), 800, 225);
+        addObject(new Red(this), 830, 225);
+        addObject(new Blue(this), 800, 255);
+        addObject(new Neutral(this), 830, 255);
+        addObject(brushImage, 760, 240);
+        addObject(new Undo(this),661,360);
+        addObject(new Redo(this),809,360);
+        addObject(new Clear(this),661,470);
+        addObject(new LoadGame(this),809,470);
+        addObject(new ChangeRules(this),735,550);
+        updateLists();
+        displayMoves();
+        updateNumbers();
+        writeBoard("save"+Integer.toString(moveNumber));
+        screen = 2;
+    }
+    public void getRules(){
+        rules = "B";
+        birth.clear();
+        survive.clear();                
+        JFrame frame = new JFrame("Birth Rules");
+        String input = JOptionPane.showInputDialog(frame, 
+            "Enter the birth rules without commas");  
+        rules += (input+"/S");
+        char[] numbers = input.toCharArray();
+        for(char c:numbers){
+            birth.add(Integer.parseInt(String.valueOf(c)));
         }
+        frame = new JFrame("Survival Rules");
+        input = JOptionPane.showInputDialog(frame, 
+            "Enter the survival rules without commas");
+        rules += input;
+        numbers = input.toCharArray();
+        for(char c:numbers){
+            survive.add(Integer.parseInt(String.valueOf(c)));
+        }
+        for(Tile[] ts:allTiles){
+            for(Tile t:ts){
+                t.preupdate();
+            }
+        }
+        newBoard();
+    }
+    public void setBrush(int color, GreenfootImage img){
+        setColor = color;
+        brushImage.setImage(img);
     }
 }

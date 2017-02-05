@@ -1,18 +1,18 @@
 import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
-import java.awt.Color;
+
 /**
- * Write a description of class endMove here.
+ * Write a description of class Iterate here.
  * 
  * @author (your name) 
  * @version (a version number or a date)
  */
-public class EndMove extends Button
+public class Iterate extends Button
 {
-    public EndMove(MyWorld w){
-        super(w,new GreenfootImage("Buttons/endMove.jpg"));
+    public Iterate(MyWorld w){
+        super(w,new GreenfootImage("Buttons/iterate.jpg"));
     }  
     public void rest(){}
     public void clickAction(){
-        w.doTurn();
-    }
+        w.sandboxTurn();
+    }  
 }

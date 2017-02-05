@@ -9,7 +9,7 @@ import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
 public class Redo extends Button
 {
     public Redo(MyWorld w){
-        super(w,new GreenfootImage("redo.jpg"));
+        super(w,new GreenfootImage("Buttons/redo.jpg"));
     }
     public void rest(){}
     public void clickAction(){

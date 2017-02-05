@@ -13,7 +13,6 @@ public abstract class Button extends Actor
     //Text text;
     int height;
     int width;
-    int timer=0;
     boolean mouseWasDown = false;
     /*public Button(MyWorld w, Color backColor, int height,
                   int width, String text, Color textColor, int textSize){
@@ -38,52 +37,23 @@ public abstract class Button extends Actor
         this.width = img.getWidth();
         this.setImage(img);
     }
-    public void act()
-    {
-        if(timer < 50){
-            timer++;
-        }
-        checkMouse();
-    }
-    public boolean mouseTouching()
-    {
+    public void act(){
         MouseInfo cursor = Greenfoot.getMouseInfo();
-        if(cursor != null &&
-           cursor.getX() >= (getX()-width/2)&&
-           cursor.getX() <= (getX()+width/2) &&
-           cursor.getY() >= (getY()-height/2) &&
-           cursor.getY() <= (getY()+height/2))
-        {          
-            return true;
-        }
-        else
+        if(Greenfoot.mouseClicked(this))
         {
-            return false;
+            MouseInfo mouse=Greenfoot.getMouseInfo();
+            int mX=mouse.getX(), mY=mouse.getY();
+            // with text top at 80, bottom at 100, left at 350, and right at 450
+            if(cursor != null &&
+               mX >= (getX()-width/2)&&
+               mX <= (getX()+width/2) &&
+               mY >= (getY()-height/2) &&
+               mY <= (getY()+height/2))
+            {          
+                clickAction();
+            }
         }
-    }
-    public boolean hoverClicked()
-    {
-        if(mouseTouching() && Greenfoot.getMouseInfo().getButton() == 1){
-            mouseWasDown = true;
-            return false;
-        }
-        else if(mouseTouching() && timer==50 && mouseWasDown && Greenfoot.getMouseInfo().getButton() != 1){
-            mouseWasDown = false;
-            timer = 0;
-            return true;
-        }
-        else{
-            mouseWasDown = false;
-            return false;
-        }
-    }
-    public void checkMouse()
-    {
-        if(hoverClicked()){
-            clickAction();
-        }else{
-            rest();
-        }
+        
     }
     public abstract void clickAction();
     public abstract void rest();

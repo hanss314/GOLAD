@@ -1,18 +1,18 @@
 import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
 
 /**
- * Write a description of class LoadGame here.
+ * Write a description of class Red here.
  * 
  * @author (your name) 
  * @version (a version number or a date)
  */
-public class LoadGame extends Button
+public class Red extends Button
 {
-    public LoadGame(MyWorld w){
-        super(w,new GreenfootImage("Buttons/loadGame.jpg"));
-    }
+    public Red(MyWorld w){
+        super(w,new GreenfootImage("Tiles/redLive.jpg"));
+    }  
     public void rest(){}
     public void clickAction(){
-        w.readBoard("quicksave.txt");
+        w.setBrush(1,getImage());
     }
 }
