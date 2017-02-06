@@ -64,6 +64,10 @@ public class MyWorld extends World
         killAll();
         addObject(new StartGame(this), 435, 150);
         addObject(new Sandbox(this), 435, 250);
+<<<<<<< HEAD
+        screen = 0;
+=======
+>>>>>>> origin/master
     }
     public void createGrid(){
         for(int x = 0; x < 20; x++){
@@ -153,26 +157,39 @@ public class MyWorld extends World
         for(int x = 0; x<20; x++){
             for(int y = 0; y<20; y++){
                 Tile t = allTiles[x][y];
-                int state = Greenfoot.getRandomNumber(6);
+                int state = Greenfoot.getRandomNumber(3);
                 if(state == 0){
                     t.isRed = true;
                     t.isBlue = false;
                     t.isDead = false;
                     //reds.add(t);
-                }else if(state == 1){
-                    t.isRed = false;
-                    t.isBlue = true;
-                    t.isDead = false;
-                    //blues.add(t);
                 }else{
-                   t.isRed = false;
-                   t.isBlue = false;
-                   t.isDead = true; 
+                    t.isRed = false;
+                    t.isBlue = false;
+                    t.isDead = true; 
+                }
+            }
+        }
+        for(int x = 0; x<20; x++){
+            for(int y = 0; y<20; y++){
+                Tile t = allTiles[x][y];
+                Tile tochange = allTiles[19-x][19-y];
+                if(t.isRed && tochange.isRed){
+                    t.isRed = false;
+                    t.isBlue = false;
+                    t.isDead = true; 
+                    tochange.isRed = false;
+                    tochange.isBlue = false;
+                    tochange.isDead = true; 
+                }else if(t.isRed && tochange.isDead){
+                    tochange.isRed = false;
+                    tochange.isBlue = true;
+                    tochange.isDead = false; 
                 }
             }
         }
         updateLists();
-        while(reds.size()!=blues.size()){
+        /*while(reds.size()!=blues.size()){
             int x = 0;
             int y = 0;
             do{
@@ -187,7 +204,7 @@ public class MyWorld extends World
                 allTiles[x][y].isRed = true;
                 reds.add(allTiles[x][y]);
             }
-        }
+        }*/
         for(Tile[] ts:allTiles){
             for(Tile t:ts){
                 t.preupdate();
@@ -339,7 +356,7 @@ public class MyWorld extends World
             removeObject(moveDisplay);
         }
         moveDisplay = new Text(("Move "+moveNumber+"/"+totalMoves),30);
-        addObject(moveDisplay,735,300);
+        addObject(moveDisplay,735,283);
     }
     public void newBoard(){
         moveNumber = 0;
@@ -368,6 +385,13 @@ public class MyWorld extends World
     }
     public void playGame(){
         killAll();
+<<<<<<< HEAD
+        moveNumber = 0;
+        totalMoves = 0; 
+        redTurn = true;
+        blueTurn = false;
+=======
+>>>>>>> origin/master
         createGrid();
         randomizeGrid();
         addObject(new Image("Backgrounds/redDisplay.jpg"),735,45);
@@ -376,12 +400,22 @@ public class MyWorld extends World
         addObject(new Text("Cells:",30),650,70);
         addObject(new Text("Player 2",30),660,111);
         addObject(new Text("Cells:",30),650,161);
+<<<<<<< HEAD
+        addObject(new EndMove(this),735,227);
+        addObject(new Undo(this),661,340);
+        addObject(new Redo(this),809,340);
+        addObject(new NewGame(this),661,435);
+        addObject(new LoadGame(this),809,435);
+        addObject(new ChangeRules(this),735,516);
+        addObject(new MainMenu(this),735,580);
+=======
         addObject(new EndMove(this),735,240);
         addObject(new Undo(this),661,360);
         addObject(new Redo(this),809,360);
         addObject(new NewGame(this),661,470);
         addObject(new LoadGame(this),809,470);
         addObject(new ChangeRules(this),735,550);
+>>>>>>> origin/master
         displayMoves();
         updateNumbers();
         redTimer.reset();
@@ -392,6 +426,11 @@ public class MyWorld extends World
     }
     public void sandbox(){
         killAll();
+<<<<<<< HEAD
+        moveNumber = 0;
+        totalMoves = 0;
+=======
+>>>>>>> origin/master
         createGrid();
         addObject(new Image("Backgrounds/redDisplay.jpg"),735,45);
         addObject(new Image("Backgrounds/blueDisplay.jpg"),735,136);
@@ -399,6 +438,20 @@ public class MyWorld extends World
         addObject(new Text("Cells:",30),650,70);
         addObject(new Text("Player 2",30),660,111);
         addObject(new Text("Cells:",30),650,161);
+<<<<<<< HEAD
+        addObject(new Iterate(this),663,227);
+        addObject(new Dead(this), 800, 212);
+        addObject(new Red(this), 830, 212);
+        addObject(new Blue(this), 800, 242);
+        addObject(new Neutral(this), 830, 242);
+        addObject(brushImage, 760, 227);
+        addObject(new Undo(this),661,340);
+        addObject(new Redo(this),809,340);
+        addObject(new Clear(this),661,435);
+        addObject(new LoadGame(this),809,435);
+        addObject(new ChangeRules(this),735,516);
+        addObject(new MainMenu(this),735,580);
+=======
         addObject(new Iterate(this),663,240);
         addObject(new Dead(this), 800, 225);
         addObject(new Red(this), 830, 225);
@@ -410,6 +463,7 @@ public class MyWorld extends World
         addObject(new Clear(this),661,470);
         addObject(new LoadGame(this),809,470);
         addObject(new ChangeRules(this),735,550);
+>>>>>>> origin/master
         updateLists();
         displayMoves();
         updateNumbers();
@@ -435,12 +489,21 @@ public class MyWorld extends World
         numbers = input.toCharArray();
         for(char c:numbers){
             survive.add(Integer.parseInt(String.valueOf(c)));
+<<<<<<< HEAD
         }
         for(Tile[] ts:allTiles){
             for(Tile t:ts){
                 t.preupdate();
             }
         }
+=======
+        }
+        for(Tile[] ts:allTiles){
+            for(Tile t:ts){
+                t.preupdate();
+            }
+        }
+>>>>>>> origin/master
         newBoard();
     }
     public void setBrush(int color, GreenfootImage img){
