@@ -24,4 +24,4 @@ This version does not have AI (yet!)
 ## Things I should do (feel free to do these things for me)
 Liven up the main menu
 
-Implment an AI
+Implement an AI
