@@ -6,13 +6,10 @@ If you want to just play the game, [download the .jar](https://github.com/hanss3
 
 ## How to Play
 
-Red and blue should start with the same number of squares. If they don't, just press new game until they do.
-
 Watch these videos for instructions on how to play:
 [Video 1](https://www.youtube.com/watch?v=f8RDs2u92MI) - [Video 2](https://www.youtube.com/watch?v=SKQJlvqhDzQ)
 
-## Changes from original
+## Differences
+There are some differences from the rules shown in the videos. 
 
-- New boards do not generate symmetrically(I should probably add this)
-
-- You can not save up moves. If you decide to create a cell, you simply lose your next turn.
+You may not save up moves, to create a cell, you have to sacrafice two of your own.
