@@ -7,10 +7,12 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.FileInputStream;
 import javax.swing.JOptionPane;
 import javax.swing.JFrame;
 import java.lang.String;
 import java.awt.Color;
+import java.util.Properties;
 /**
  * Write a description of class MyWorld here.
  * 
@@ -142,6 +144,11 @@ public class MyWorld extends World
                 blueTimer.pause();
             }
         }
+        for(Tile[] ts:allTiles){
+            for(Tile t:ts){
+                t.actionDone = false;
+            }
+        }
         writeBoard("save"+Integer.toString(moveNumber));  
         sacrafices = 0;
         doneTurn = false;
@@ -239,7 +246,7 @@ public class MyWorld extends World
     public void writeBoard(String filename){
         PrintWriter writer = null;
         try{
-            writer = new PrintWriter("../saves/"+filename,"UTF-8");
+            writer = new PrintWriter("saves/"+filename,"UTF-8");
             Tile t = null;
             for(int y = 0; y<20; y++){
                 for(int x = 0; x<20; x++){
@@ -260,7 +267,8 @@ public class MyWorld extends World
                 writer.print("B");
             }
         }catch(Exception e){
-            System.out.println("error");
+            JFrame frame = new JFrame("Error");
+            JOptionPane.showMessageDialog(frame, "ERROR", "Error", 0);
         }
         finally{
             if(writer!=null){
@@ -271,7 +279,7 @@ public class MyWorld extends World
     public void readBoard(String filename){
         BufferedReader reader = null;
         try{
-            reader = new BufferedReader(new FileReader("../saves/"+filename));
+            reader = new BufferedReader(new FileReader("saves/"+filename));
             String currentLine = null;
             int x = 0;
             int y = 0;
