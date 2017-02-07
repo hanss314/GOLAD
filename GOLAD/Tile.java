@@ -2,6 +2,7 @@ import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
 import java.awt.Color;
 import java.lang.Math.*;
 import java.lang.Integer.*;
+import java.util.ArrayList;
 /**
  * Write a description of class Tile here.
  * 
@@ -20,16 +21,19 @@ public class Tile extends Button
     boolean actionDone = false;
     boolean[] previousState = new boolean[3];
     //rules
-    int[] birth;
-    int[] survive;
+    ArrayList<Integer> birth = new ArrayList();
+    ArrayList<Integer> survive = new ArrayList();
     //assets
-    GreenfootImage redLive = new GreenfootImage("redLive.jpg");
-    GreenfootImage redDying = new GreenfootImage("redDying.jpg");
-    GreenfootImage blueLive = new GreenfootImage("blueLive.jpg");
-    GreenfootImage blueDying = new GreenfootImage("blueDying.jpg");
-    GreenfootImage deadBlue = new GreenfootImage("deadBlue.jpg");
-    GreenfootImage deadRed = new GreenfootImage("deadRed.jpg");
-    GreenfootImage dead = new GreenfootImage("dead.jpg");
+    GreenfootImage redLive = new GreenfootImage("Tiles/redLive.jpg");
+    GreenfootImage redDying = new GreenfootImage("Tiles/redDying.jpg");
+    GreenfootImage blueLive = new GreenfootImage("Tiles/blueLive.jpg");
+    GreenfootImage blueDying = new GreenfootImage("Tiles/blueDying.jpg");
+    GreenfootImage deadBlue = new GreenfootImage("Tiles/deadBlue.jpg");
+    GreenfootImage deadRed = new GreenfootImage("Tiles/deadRed.jpg");
+    GreenfootImage dead = new GreenfootImage("Tiles/dead.jpg");
+    GreenfootImage deadNeutral = new GreenfootImage("Tiles/deadNeutral.jpg");
+    GreenfootImage neutralDying = new GreenfootImage("Tiles/neutralDying.jpg");
+    GreenfootImage neutral = new GreenfootImage("Tiles/neutral.jpg");
     
     public Tile(MyWorld w, boolean isRed, boolean isBlue){
         this(w);
@@ -40,50 +44,100 @@ public class Tile extends Button
         }
     }
     public Tile(MyWorld w){
-        super(w, new GreenfootImage("dead.jpg")); 
+        super(w, new GreenfootImage("Tiles/dead.jpg")); 
         getLifeRules();
     }
     public void rest(){}
     public void clickAction(){
-        if(!actionDone){
-            previousState[0]=isRed;
-            previousState[1]=isBlue;
-            previousState[2]=isDead;
-            if(isRed&& w.blueTurn && w.blueMoves>0){
-                isRed=false;
-                isBlue = false;
-                isDead = true;
-                w.blueMoves--;
-                actionDone = true;
-            }else if(isBlue && w.redTurn && w.redMoves>0){
-                isRed=false;
-                isBlue = false;
-                isDead = true;
-                w.redMoves--;
-                actionDone = true;
-            }else if(isDead && w.redTurn && w.redMoves>0){
-                isRed=true;
-                isBlue = false;
-                isDead = false;
-                w.redMoves -= 2;
-                actionDone = true;
-            }else if(isDead && w.blueTurn && w.blueMoves>0){
-                isRed=false;
-                isBlue = true;
-                isDead = false;
-                w.blueMoves -= 2;
-                actionDone = true;
+        if(w.screen == 1 || w.screen > 6){
+            if(!(isDead||isRed||isBlue)){
+                return;
             }
-        }else{
-            isRed = previousState[0];
-            isBlue = previousState[1];
-            isDead = previousState[2];
-            if(w.redTurn){
-                w.redMoves = 1;
-            }else if(w.blueTurn){
-                w.blueMoves = 1;
-            }           
-            actionDone = false;
+            if(!actionDone && !w.doneTurn){
+                previousState[0]=isRed;
+                previousState[1]=isBlue;
+                previousState[2]=isDead;
+                if(isRed && w.sacrafices <2){
+                    if(w.redTurn){
+                        w.sacrafices++;
+                    }else if(w.blueTurn && w.sacrafices >0){
+                        return;
+                    }else{
+                        w.doneTurn = true;
+                    }
+                    isRed=false;
+                    isBlue = false;
+                    isDead = true;
+                    actionDone = true;
+                }else if(isBlue && w.sacrafices <2){
+                    if(w.blueTurn){
+                        w.sacrafices++;
+                    }else if(w.redTurn && w.sacrafices >0){
+                        return;
+                    }else{
+                        w.doneTurn = true;
+                    }
+                    isRed=false;
+                    isBlue = false;
+                    isDead = true;
+                    actionDone = true;
+                }else if(isDead && w.redTurn && w.sacrafices == 2 && !w.doneTurn){
+                    isRed=true;
+                    isBlue = false;
+                    isDead = false;
+                    actionDone = true;
+                    w.doneTurn = true;
+                    w.sacrafices = 0;
+                }else if(isDead && w.blueTurn && w.sacrafices == 2 && !w.doneTurn){
+                    isRed=false;
+                    isBlue = true;
+                    isDead = false;
+                    actionDone = true;
+                    w.doneTurn = true;
+                    w.sacrafices = 0;
+                }
+            }else if(actionDone){
+                if(w.doneTurn && isDead && (previousState[0]==w.redTurn)){
+                    return;
+                }
+                isRed = previousState[0];
+                isBlue = previousState[1];
+                isDead = previousState[2];
+                if(w.doneTurn && isDead){
+                    w.sacrafices = 2;
+                }else if(!w.doneTurn && !isDead){
+                    if(w.redTurn){
+                        if(!isBlue){
+                            w.sacrafices--;
+                        }   
+                    }else if(w.blueTurn){
+                        if(!isRed){
+                            w.sacrafices--;
+                        }
+                    }    
+                }
+                actionDone = false;
+                w.doneTurn = false;
+            }
+        }else if(w.screen == 2){
+            switch(w.setColor){
+                case 0: isRed=false;
+                        isBlue = false;
+                        isDead = true;
+                        break;
+                case 1: isRed=true;
+                        isBlue = false;
+                        isDead = false;
+                        break;
+                case 2: isRed=false;
+                        isBlue = true;
+                        isDead = false;
+                        break;
+                case 3: isRed=false;
+                        isBlue = false;
+                        isDead = false;
+                        break;
+            }
         }
         preupdate();
         updateImg();
@@ -98,6 +152,8 @@ public class Tile extends Button
             return 1;
         }else if(isBlue){
             return 2;
+        }else if(!isDead){
+            return 3;
         }else{
             return 0;
         }
@@ -105,6 +161,7 @@ public class Tile extends Button
     public int[] getNeighbours(){
         int redCount = 0;
         int blueCount = 0;
+        int neutrals = 0;
         for(int x=-1; x<2; x++){
             for(int y=-1; y<2; y++){
                 if(x==0 && y==0){}
@@ -113,22 +170,23 @@ public class Tile extends Button
                     if(neighbour != null){
                         if(neighbour.getState()==1){
                             redCount++;
-                        }
-                        else if(neighbour.getState()==2){
+                        }else if(neighbour.getState()==2){
                             blueCount++;
+                        }else if(neighbour.getState()==3){
+                            neutrals++;
                         }
                     }
                 }
             }
         }
-        int[] returnValue = {redCount, blueCount};
+        int[] returnValue = {redCount, blueCount, neutrals};
         return returnValue;
     }
     public void preupdate(){
         int[] surroundings = getNeighbours();
         int numReds = surroundings[0];
         int numBlues = surroundings[1];
-        int totalNeighbours = numReds + numBlues;
+        int totalNeighbours = numReds + numBlues + surroundings[2];
         willRed = false;
         willBlue = false;
         willDie = true;
@@ -140,9 +198,8 @@ public class Tile extends Button
                     }else if(numBlues>numReds){
                         willBlue = true;
                     }else if(Greenfoot.getRandomNumber(1)==0){
-                        willRed = true;
-                    }else{
-                        willBlue = true;
+                        willRed = false;
+                        willBlue = false;
                     }
                     willDie = false;
                     break;
@@ -178,11 +235,19 @@ public class Tile extends Button
             }else{
                 setImage(blueLive);
             }
-        }else if(isDead){
+        }else if(!isDead){
+            if(willDie){
+                setImage(neutralDying);
+            }else{
+                setImage(neutral);
+            }
+        }else{
             if(willRed){
                 setImage(deadRed);
             }else if(willBlue){
                 setImage(deadBlue);
+            }else if(!willDie){
+                setImage(deadNeutral);
             }else{
                 setImage(dead);
             }
