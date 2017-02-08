@@ -14,15 +14,14 @@ Watch these videos for instructions on how to play:
 [Video 1](https://www.youtube.com/watch?v=f8RDs2u92MI) - [Video 2](https://www.youtube.com/watch?v=SKQJlvqhDzQ)
 
 ## Differences
-There are some differences from the rules shown in the videos. 
 
-You may not save up moves, to create a cell, you have to sacrafice two of your own.
-
-Also, there are some things included in the iOS version not included in here.
+Unlike the version shown in the video, you can not save up moves. To summon a cell, you have to sacrafice two of your own.
+This is also reflected in Cary's iOS version
 
 This version does not have online play.
-This version does not have AI (yet!)
 
 ## Things I should do (feel free to do these things for me)
 
-Implement an AI
+Rework the save/load system
+
+Implement endgame block crawling into the AI
