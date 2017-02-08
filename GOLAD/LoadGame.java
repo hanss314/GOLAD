@@ -13,6 +13,6 @@ public class LoadGame extends Button
     }
     public void rest(){}
     public void clickAction(){
-        w.readBoard("quicksave.txt");
+        w.readBoard("quicksave");
     }
 }

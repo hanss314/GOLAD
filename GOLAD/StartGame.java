@@ -13,6 +13,7 @@ public class StartGame extends Button
     }
     public void rest(){}
     public void clickAction(){
-        w.playGame();
+        w.gameEnd = false;
+        w.playerSelect();
     }
 }

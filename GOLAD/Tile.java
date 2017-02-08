@@ -20,6 +20,8 @@ public class Tile extends Button
     boolean willBlue = false;
     boolean actionDone = false;
     boolean[] previousState = new boolean[3];
+    final int xpos;
+    final int ypos;
     //rules
     ArrayList<Integer> birth = new ArrayList();
     ArrayList<Integer> survive = new ArrayList();
@@ -35,16 +37,18 @@ public class Tile extends Button
     GreenfootImage neutralDying = new GreenfootImage("Tiles/neutralDying.jpg");
     GreenfootImage neutral = new GreenfootImage("Tiles/neutral.jpg");
     
-    public Tile(MyWorld w, boolean isRed, boolean isBlue){
-        this(w);
+    public Tile(MyWorld w, boolean isRed, boolean isBlue, int x, int y){
+        this(w, x, y);
         this.isRed = isRed;
         this.isBlue = isBlue;
         if(isRed || isBlue){
             isDead = false;
         }
     }
-    public Tile(MyWorld w){
+    public Tile(MyWorld w, int x, int y){
         super(w, new GreenfootImage("Tiles/dead.jpg")); 
+        this.xpos=x;
+        this.ypos=y;
         getLifeRules();
     }
     public void rest(){}
@@ -139,9 +143,8 @@ public class Tile extends Button
                         break;
             }
         }
-        preupdate();
         updateImg();
-        updateNeighbours();
+        updateNeighbours(w.allTiles);
     }
     private void getLifeRules(){
         this.birth = w.birth;
@@ -158,7 +161,26 @@ public class Tile extends Button
             return 0;
         }
     }
-    public int[] getNeighbours(){
+    public ArrayList<Tile> getNeighbours(Tile[][] board){
+        ArrayList<Tile> returnValue = new ArrayList<Tile>();
+        for(int x=-1; x<2; x++){
+            for(int y=-1; y<2; y++){
+                if(x==0 && y==0){}
+                else{
+                    try{
+                        Tile neighbour = board[xpos+x][ypos+y];
+                        if(neighbour != null){
+                            if(!neighbour.isDead){
+                                returnValue.add(neighbour);
+                            }
+                        }
+                    }catch(Exception e){}
+                }
+            }
+        }
+        return returnValue;
+    }
+    public int[] getNeighbourCount(Tile[][] board){
         int redCount = 0;
         int blueCount = 0;
         int neutrals = 0;
@@ -166,24 +188,26 @@ public class Tile extends Button
             for(int y=-1; y<2; y++){
                 if(x==0 && y==0){}
                 else{
-                    Tile neighbour = (Tile)getOneObjectAtOffset(x*30,y*30,Tile.class);
-                    if(neighbour != null){
-                        if(neighbour.getState()==1){
-                            redCount++;
-                        }else if(neighbour.getState()==2){
-                            blueCount++;
-                        }else if(neighbour.getState()==3){
-                            neutrals++;
+                    try{
+                        Tile neighbour = board[xpos+x][ypos+y];
+                        if(neighbour != null){
+                            if(neighbour.isRed){
+                                redCount++;
+                            }else if(neighbour.isBlue){
+                                blueCount++;
+                            }else if(!neighbour.isDead){
+                                neutrals++;
+                            }
                         }
-                    }
+                    }catch(Exception e){}
                 }
             }
         }
         int[] returnValue = {redCount, blueCount, neutrals};
         return returnValue;
     }
-    public void preupdate(){
-        int[] surroundings = getNeighbours();
+    public void preupdate(Tile[][] board){
+        int[] surroundings = getNeighbourCount(board);
         int numReds = surroundings[0];
         int numBlues = surroundings[1];
         int totalNeighbours = numReds + numBlues + surroundings[2];
@@ -253,13 +277,15 @@ public class Tile extends Button
             }
         }
     }
-    public void updateNeighbours(){
+    public void updateNeighbours(Tile[][] board){
         for(int x=-1; x<2; x++){
             for(int y=-1; y<2; y++){                
-                Tile neighbour = (Tile)getOneObjectAtOffset(x*30,y*30,Tile.class);
-                if(neighbour != null){
-                    neighbour.preupdate();
-                }
+                try{
+                    Tile neighbour = board[xpos+x][ypos+y];
+                    if(neighbour != null){
+                        neighbour.preupdate(board);
+                    }
+                }catch(Exception e){}
             }
         }
     }

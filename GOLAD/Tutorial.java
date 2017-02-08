@@ -13,6 +13,7 @@ public class Tutorial extends Button
     }
     public void rest(){}
     public void clickAction(){
+        w.gameEnd = false;
         w.tutorial();
     }   
 }

@@ -1,19 +1,18 @@
 import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
 
 /**
- * Write a description of class NewGame here.
+ * Write a description of class Quit here.
  * 
  * @author (your name) 
  * @version (a version number or a date)
  */
-public class NewGame extends Button
+public class Quit extends Button
 {
-    public NewGame(MyWorld w){
-        super(w,new GreenfootImage("Buttons/newGame.jpg"));
+    public Quit(MyWorld w){
+        super(w,new GreenfootImage("Buttons/quit.jpg"));
     }
     public void rest(){}
     public void clickAction(){
-        w.gameEnd = false;
-        w.playGame();
+        System.exit(0);
     }
 }
