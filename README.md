@@ -22,6 +22,4 @@ This version does not have online play.
 
 ## Things I should do (feel free to do these things for me)
 
-Rework the save/load system
-
 Implement endgame block crawling into the AI
