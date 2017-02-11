@@ -1,12 +1,8 @@
 # GOLAD
 
-I made this because [carykh](https://www.youtube.com/user/carykh) didn't upload his awesome version :(
-
-His version is also available on the iOS app store.
+I made this because [carykh](https://www.youtube.com/user/carykh)'s version is iOS only :(
 
 If you want to just play the game, you don't need the GOLAD folder, that's just a bunch of messy source code.  
-
-To play the game, download the [.jar](https://github.com/hanss314/GOLAD/blob/master/GOLAD.jar) and the [saves](https://github.com/hanss314/GOLAD/tree/master/saves/tutorial) and run the .jar file.
 
 ## How to Play
 
