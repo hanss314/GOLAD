@@ -15,7 +15,7 @@ public class Redo extends Button
     public void clickAction(){
         if(w.moveNumber<w.totalMoves){
             w.moveNumber++;
-            w.readBoard("save"+Integer.toString(w.moveNumber));   
+            w.setTurn(w.moveNumber);   
             w.displayMoves();
         }
     }

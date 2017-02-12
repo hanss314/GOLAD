@@ -9,12 +9,14 @@ import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
 public class Undo extends Button
 {
     public Undo(MyWorld w){
-        super(w,new GreenfootImage("undo.jpg"));
+        super(w,new GreenfootImage("Buttons/undo.jpg"));
     }
     public void rest(){}
     public void clickAction(){
-        w.moveNumber--;
-        w.readBoard("save"+Integer.toString(w.moveNumber));   
-        w.displayMoves();
+        if(w.moveNumber>1){
+            w.moveNumber--;
+            w.setTurn(w.moveNumber);   
+            w.displayMoves();
+        }
     }
 }

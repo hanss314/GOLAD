@@ -22,6 +22,7 @@ public class Tile extends Button
     boolean[] previousState = new boolean[3];
     final int xpos;
     final int ypos;
+    ArrayList<boolean[]> previousStates = new ArrayList<boolean[]>();
     //rules
     ArrayList<Integer> birth = new ArrayList();
     ArrayList<Integer> survive = new ArrayList();
@@ -53,7 +54,7 @@ public class Tile extends Button
     }
     public void rest(){}
     public void clickAction(){
-        if(w.screen == 1 || w.screen > 6){
+        if(((w.screen == 1) && ((!w.redBot || !w.redTurn)&&(!w.blueBot || !w.blueTurn))) || w.screen > 6){
             if(!(isDead||isRed||isBlue)){
                 return;
             }
