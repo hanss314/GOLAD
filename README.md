@@ -18,6 +18,6 @@ This version does not have online play.
 ## Things I should do (feel free to do these things for me)
 
 
-Make tutorial 
+Make tutorial better
 
-Fix it not launching?
+Make hard AI consider opponent moves in calculation
