@@ -1,5 +1,4 @@
 # GOLAD
-
 I made this because [carykh](https://www.youtube.com/user/carykh)'s version is iOS only :(
 
 To play the game, [click here](https://github.com/hanss314/GOLAD/raw/master/GOLAD.jar) to download the main jar file.  
@@ -22,4 +21,6 @@ If you would like to contribute to the to-do list, you can either suggest a feat
 
 Actual to-do list:
 
-- Currently nothing.
+- Make tutorial 
+
+- Fix #3 (program doesn't open)
