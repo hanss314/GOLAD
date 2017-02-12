@@ -18,4 +18,4 @@ This version does not have online play.
 
 ## Things I should do (feel free to do these things for me)
 
-Implement endgame block crawling into the AI
+Please post any issues and suggestions in Issues
