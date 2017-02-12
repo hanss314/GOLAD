@@ -2,7 +2,7 @@
 
 I made this because [carykh](https://www.youtube.com/user/carykh)'s version is iOS only :(
 
-If you want to just play the game, you don't need the GOLAD folder, that's just a bunch of messy source code.  
+To play the game, [click here](https://github.com/hanss314/GOLAD/raw/master/GOLAD.jar) to download the main jar file.  
 
 ## How to Play
 
@@ -16,6 +16,10 @@ This is also reflected in Cary's iOS version
 
 This version does not have online play.
 
-## Things I should do (feel free to do these things for me)
+## To-Do List
 
-Please post any issues and suggestions in Issues
+If you would like to contribute to the to-do list, you can either suggest a feature [here](https://github.com/hanss314/GOLAD/issues) or code one of the items on the list and make a [pull request](https://github.com/hanss314/GOLAD//pulls).
+
+Actual to-do list:
+
+- Currently nothing.
