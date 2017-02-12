@@ -1,5 +1,4 @@
 # GOLAD
-
 I made this because [carykh](https://www.youtube.com/user/carykh)'s version is iOS only :(
 
 If you want to just play the game, you don't need the GOLAD folder, that's just a bunch of messy source code.  
@@ -18,4 +17,7 @@ This version does not have online play.
 
 ## Things I should do (feel free to do these things for me)
 
-Please post any issues and suggestions in Issues
+
+Make tutorial 
+
+Fix it not launching?
