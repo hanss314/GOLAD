@@ -21,3 +21,5 @@ This version does not have online play.
 Make tutorial better
 
 Make hard AI consider opponent moves in calculation
+
+Implement Cary's gameStrings
