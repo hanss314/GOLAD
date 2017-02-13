@@ -5,7 +5,7 @@ If you want to just play the game, you don't need the GOLAD folder, that's just 
 
 ## How to Play
 
-Watch [this](https://www.youtube.com/watch?v=JkGZ2Hl1l8c) video for instructions on how to play:
+Watch [this](https://www.youtube.com/watch?v=JkGZ2Hl1l8c) video for instructions on how to play. Alternatively, you can play the tutorial provided in the game.
 
 ## Differences
 
