@@ -6,21 +6,26 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.ArrayList;
 class AI implements Callable<int[][]> {
-    private Tile[][] allTiles = new Tile[20][20];
+    private Tile[][] allTiles = new Tile[0][0];
     private final int depth;
     private ArrayList<Tile> reds = new ArrayList();
     ArrayList<Tile> blues = new ArrayList();
     private final boolean redTurn;
     private final boolean blueTurn;
     private final MyWorld w;
+    private final int WIDTH;
+    private final int HEIGHT;
     public AI(Tile[][] board, int depth,boolean redTurn, boolean blueTurn, MyWorld world){
-        for(int i=0;i<20;i++){
-            for(int j=0;j<20;j++){
+        WIDTH = board.length;
+        HEIGHT = board[0].length;
+        allTiles = new Tile[WIDTH][HEIGHT];
+        for(int i=0;i<board.length;i++){
+            for(int j=0;j<board[0].length;j++){
                 allTiles[i][j] = new Tile(world,i,j);
             }
         }
-        for(int i=0;i<20;i++){
-            for(int j=0;j<20;j++){
+        for(int i=0;i<board.length;i++){
+            for(int j=0;j<board[0].length;j++){
                 Tile toClone = board[i][j];
                 Tile newTile = allTiles[i][j];
                 newTile.isRed = toClone.isRed;
@@ -42,22 +47,22 @@ class AI implements Callable<int[][]> {
             return makeRandomMove();
         }
         double[] move = {0,0,0};
-        Tile[][] board = new Tile[20][20];
+        Tile[][] board = new Tile[WIDTH][HEIGHT];
         if(blueTurn){
             move=new double[]{0,0,2147483647};
         }
-        for(int x = 0; x < 20; x++){
-            for(int y = 0; y < 20; y++){
+        for(int x = 0; x < WIDTH; x++){
+            for(int y = 0; y < HEIGHT; y++){
                 Tile toAdd = new Tile(w, x, y);
                 board[x][y]=toAdd;
             }
         }
-        for(int x=0; x<20; x++){
-            for(int y=0; y<20; y++){
+        for(int x=0; x<WIDTH; x++){
+            for(int y=0; y<HEIGHT; y++){
                 if(allTiles[x][y].getState()==1||allTiles[x][y].getState()==2){
                     int[] coords = {x,y};
-                    for(int tileX=0; tileX<20; tileX++){
-                        for(int tileY=0; tileY<20; tileY++){
+                    for(int tileX=0; tileX<WIDTH; tileX++){
+                        for(int tileY=0; tileY<HEIGHT; tileY++){
                             Tile newTile = board[tileX][tileY];
                             Tile toClone = allTiles[tileX][tileY];
                             newTile.isRed = toClone.isRed;
@@ -141,7 +146,7 @@ class AI implements Callable<int[][]> {
         toKill.isDead = true;
         toKill.updateNeighbours(board);
         //writeBoard("before.txt", board);
-        iterate(depth, board);
+        iterate(2, board);
         //writeBoard("after.txt", board);
         for(Tile[] ts:board){
             for(Tile t:ts){
@@ -167,8 +172,8 @@ class AI implements Callable<int[][]> {
         int sacra1Y=0;
         int sacra2Y=0;
         findSquare:
-        for(x=0; x<20; x++){
-            for(y=0; y<20; y++){
+        for(x=0; x<WIDTH; x++){
+            for(y=0; y<HEIGHT; y++){
                 Tile toCheck = allTiles[x][y];
                 if((toCheck.isBlue && redTurn) || (toCheck.isRed && blueTurn)){
                     int state=toCheck.getState();
@@ -185,8 +190,8 @@ class AI implements Callable<int[][]> {
             }
         }
         findEasySacrafices:
-        for(int x2=0; x2<20; x2++){
-            for(int y2=0; y2<20; y2++){
+        for(int x2=0; x2<WIDTH; x2++){
+            for(int y2=0; y2<HEIGHT; y2++){
                 Tile toCheck = allTiles[x2][y2];
                 if(((toCheck.isRed && redTurn) || (toCheck.isBlue && blueTurn)) && toCheck.willDie){
                     sacraficeList.add(toCheck);
@@ -205,8 +210,8 @@ class AI implements Callable<int[][]> {
         }
         if(sacraficeList.size()<2){
             findOtherSacrafices:
-            for(int x2=0; x2<20; x2++){
-                for(int y2=0; y2<20; y2++){
+            for(int x2=0; x2<WIDTH; x2++){
+                for(int y2=0; y2<HEIGHT; y2++){
                     Tile toCheck = allTiles[x2][y2];
                     int[] neighbours = toCheck.getNeighbourCount(allTiles);
                     int neighbourCount = neighbours[0]+neighbours[1]+neighbours[2];
@@ -267,8 +272,8 @@ class AI implements Callable<int[][]> {
         int blueX=0;
         int blueY=0;
         findRedSquare:
-        for(redX=0; redX<20; redX++){
-            for(redY=0; redY<20; redY++){
+        for(redX=0; redX<WIDTH; redX++){
+            for(redY=0; redY<HEIGHT; redY++){
                 Tile toCheck = allTiles[redX][redY];
                 if(toCheck.isRed){
                     int state=toCheck.getState();
@@ -288,8 +293,8 @@ class AI implements Callable<int[][]> {
             }
         }
         findBlueSquare:
-        for(blueX=0; blueX<20; blueX++){
-            for(blueY=0; blueY<20; blueY++){
+        for(blueX=0; blueX<WIDTH; blueX++){
+            for(blueY=0; blueY<HEIGHT; blueY++){
                 Tile toCheck = allTiles[blueX][blueY];
                 if(toCheck.isBlue){
                     int state=toCheck.getState();
@@ -394,15 +399,15 @@ class AI implements Callable<int[][]> {
         return returnValue;
     }    
     public int[][] makeRandomMove(){
-        int tileX = Greenfoot.getRandomNumber(20);
-        int tileY = Greenfoot.getRandomNumber(20);
+        int tileX = Greenfoot.getRandomNumber(WIDTH);
+        int tileY = Greenfoot.getRandomNumber(HEIGHT);
         Tile t = allTiles[tileX][tileY];
         while(!((t.isBlue && redTurn)||(t.isRed && blueTurn))){
-            tileX = Greenfoot.getRandomNumber(20);
-            tileY = Greenfoot.getRandomNumber(20);
+            tileX = Greenfoot.getRandomNumber(WIDTH);
+            tileY = Greenfoot.getRandomNumber(HEIGHT);
             t = allTiles[tileX][tileY];
         }
-        int[] changes = {tileX,tileY,t.getState()};
+        int[] changes = {tileX,tileY,0};
         int[][] returnValue = {changes};
         return returnValue;
     }

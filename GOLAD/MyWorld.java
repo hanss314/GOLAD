@@ -30,7 +30,9 @@ public class MyWorld extends World
     ArrayList<Integer> survive = new ArrayList<>(Arrays.asList(2,3));
     ArrayList<Tile> reds = new ArrayList();
     ArrayList<Tile> blues = new ArrayList();
-    Tile[][] allTiles = new Tile[20][20];
+    int WIDTH=20;
+    int HEIGHT=20;
+    Tile[][] allTiles = new Tile[WIDTH][HEIGHT];
     boolean redTurn = true;
     boolean blueTurn = false;
     //int redMoves = 1;
@@ -163,8 +165,8 @@ public class MyWorld extends World
         screen = 0;
     }
     public void createGrid(){
-        for(int x = 0; x < 20; x++){
-            for(int y = 0; y < 20; y++){
+        for(int x = 0; x < WIDTH; x++){
+            for(int y = 0; y < HEIGHT; y++){
                 Tile toAdd = new Tile(this, x, y);
                 allTiles[x][y]=toAdd;
                 addObject(toAdd, 30*x+15, 30*y+15);
@@ -247,10 +249,10 @@ public class MyWorld extends World
         doneTurn = false;
     }
     public void randomizeGrid(){
-        for(int x = 0; x<10; x++){
-            for(int y = 0; y<20; y++){
+        for(int x = 0; x<(WIDTH/2); x++){
+            for(int y = 0; y<HEIGHT; y++){
                 Tile t = allTiles[x][y];
-                Tile pair = allTiles[19-x][19-y];
+                Tile pair = allTiles[WIDTH-1-x][HEIGHT-1-y];
                 int state = Greenfoot.getRandomNumber(5);
                 if(state == 0){
                     t.isRed = true;
@@ -341,8 +343,8 @@ public class MyWorld extends World
         try{
             writer = new PrintWriter("saves/"+filename,"UTF-8");
             Tile t = null;
-            for(int y = 0; y<20; y++){
-                for(int x = 0; x<20; x++){
+            for(int y = 0; y<HEIGHT; y++){
+                for(int x = 0; x<WIDTH; x++){
                     t = board[x][y];
                     if(t.isRed){
                         writer.print("R");
@@ -405,7 +407,7 @@ public class MyWorld extends World
                 }
                 x=0;
                 y++;
-                if(y==20){
+                if(y==HEIGHT){
                     break;
                 }
             }
