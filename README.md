@@ -15,11 +15,10 @@ This is also reflected in Cary's iOS version
 
 This version does not have online play.
 
-## Things I should do (feel free to do these things for me)
-
-
-Make tutorial better
+## To Do List (feel free to do these things for me)
 
 Make hard AI consider opponent moves in calculation
+
+Put more options in the selection menu
 
 Implement Cary's gameStrings
