@@ -1,5 +1,6 @@
 import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
-
+import javax.swing.JOptionPane;
+import javax.swing.JFrame;
 /**
  * Write a description of class LoadGame here.
  * 
@@ -13,6 +14,9 @@ public class LoadGame extends Button
     }
     public void rest(){}
     public void clickAction(){
-        w.readBoard("quicksave");
+        JFrame frame = new JFrame("Load");
+        String input = JOptionPane.showInputDialog(frame, 
+            "Enter File Name.", "Load Save", 1);
+        w.readBoard(input,true);
     }
 }

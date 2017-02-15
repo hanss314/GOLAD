@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.FileInputStream;
 import javax.swing.JOptionPane;
 import javax.swing.JFrame;
+import javax.swing.JTextField;
 import java.lang.String;
 import java.awt.Color;
 //import java.util.Properties;
@@ -18,6 +19,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.lang.Math;
 /**
  * Write a description of class MyWorld here.
  * 
@@ -57,16 +59,19 @@ public class MyWorld extends World
     boolean redBot = false;
     boolean blueBot = false;
     int selected = 0;
-    ArrayList<Button> redSelects= new ArrayList<>();
-    ArrayList<Button> blueSelects= new ArrayList<>();
     int counter = 0;
     int redDepth = 0;
     int blueDepth = 0;
+    int[] timeLimit = {Integer.MAX_VALUE,Integer.MAX_VALUE,Integer.MAX_VALUE,Integer.MAX_VALUE};
+    int timeBonus = 0;
     boolean gameEnd = false;
     Text ruleText;
+    Text tileAText;
+    Text tileBText;
     int fontScale = 0;
     ExecutorService service=null;
     Future<int[][]> task=null;
+    final String charTable = "0123456789:;ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     /**
      * Constructor for objects of class MyWorld.
      * 
@@ -84,19 +89,231 @@ public class MyWorld extends World
         }
         Greenfoot.start();
     }
+    public String getCaryString(){
+        int humanNum = 0;
+        int timeLimitNum=99999;
+        int timeBonusNum=99999;
+        if(redBot){
+            humanNum+=(2*redDepth+4);//(redDepth/2+1)*4
+        }
+        if(blueBot){
+            humanNum+=(blueDepth/2+1);
+        }
+        if(timeLimit[1]!=Integer.MAX_VALUE){
+            timeLimitNum = timeLimit[1];
+            timeBonusNum = timeBonus;
+        }
+        String result = rules+","+Math.max(WIDTH,HEIGHT)+","+timeLimitNum+","+timeBonusNum+","+humanNum+","+getBoard();
+        return result;
+    }
+    public void stringToBoard(String in){
+        int position = 0;
+        int sum = 0;
+        int positionInString = 0;
+        char[] s = in.toCharArray();
+        reds.clear();
+        blues.clear();
+        int exp = 3;
+        int bas = 4;
+        try{
+            for (int x = 0; x < WIDTH; x++) {
+                for (int y = HEIGHT-1; y >=0 ; y--) {
+                    if (position == 0) {
+                        sum = charTable.indexOf(s[positionInString]);                       
+                        positionInString++;
+                    }
+                    int value = (int)(sum / Math.pow(bas,(exp-1)-position));
+                    sum -= value * (int)Math.pow(bas,(exp-1)-position);
+                    allTiles[x][y].setState(value);
+                    position++;
+                    if (position >= exp) {
+                        position = 0;
+                    }
+                }
+            }
+        }catch(Exception e){
+            for (Tile[] ts:allTiles) {
+                for (Tile t:ts) {
+                    t.setState(0);
+                }
+            }
+        }
+        for (Tile[] ts:allTiles) {
+            for (Tile t:ts) {
+                t.preupdate(allTiles);
+            }
+        }
+        updateLists();
+    }
+    public String getBoard(){
+        String result="";
+        int counter=2;
+        int sum=0;
+        ArrayList<Integer> triplets = new ArrayList<Integer>();
+        for(int x=0; x<WIDTH; x++){
+            for(int y=HEIGHT-1;y>=0;y--){
+                Tile t=allTiles[x][y];
+                sum+=(Math.pow(4,counter)*t.getState());
+                if(counter==0){
+                    triplets.add(sum);
+                    sum=0;
+                    counter=3;
+                }
+                counter--;
+            }
+        }
+        if(counter!=2){
+            triplets.add(sum);
+        }
+        for(int i:triplets){
+            result+=charTable.toCharArray()[i];
+        }
+        return result;
+    }
+    public boolean createGameFromGameString(String in){
+        try{
+            String[] parts;
+            boolean newMode = false;
+            char[] id = in.toCharArray();
+            if(id[0]=='B'){
+                int indexOfFirstComma = in.indexOf(",");
+                int indexOfFirstSlash = in.indexOf("/");
+                birth.clear();
+                survive.clear();
+                for(int i=1;i<indexOfFirstSlash;i++){
+                    birth.add(Character.getNumericValue(id[i]));
+                }
+                for(int i=indexOfFirstSlash+2;i<indexOfFirstComma;i++){
+                    survive.add(Character.getNumericValue(id[i]));
+                }
+                parts = in.substring(indexOfFirstComma+1).split(",");
+            }else{
+                parts = in.split(",");
+            }
+            if (parts.length < 5) {
+                return false;
+            }
+ 
+            WIDTH = HEIGHT = Math.min(Math.max(Integer.parseInt(parts[0]),3),20);
+            timeLimit[0]=0;
+            timeLimit[1] = Integer.parseInt(parts[1]);
+            timeLimit[2]=0;
+            timeLimit[3]=0;
+            timeBonus = Integer.parseInt(parts[2]);
+            int humanNum = Integer.parseInt(parts[3]);
+            stringToBoard(parts[4]);
+            redDepth = (int)(((humanNum/4)-1)*2);
+            blueDepth = (((humanNum%4)-1)*2);
+            if(redDepth<0){
+                redBot = false;
+            }else if(blueDepth<0){
+                blueBot = false;
+            }
+            int noSwapsUntil = -1;
+            String[] moves = new String[parts.length-5];
+            for(int i = 0; i<moves.length; i++){
+                moves[i]=parts[i+5];
+            } 
+            int moveLimit = Integer.MAX_VALUE;
+ 
+            int AIplanIndex = 0;
+ 
+            for (int t = 0; t < moves.length; t++) { // Go through all the moves.
+                String[] moveParts = moves[t].split("\\+");
+                if (moveParts.length == 3) {
+                    redTimer.set(Integer.parseInt(moveParts[1])*(long)(0.01f));
+                    blueTimer.set(Integer.parseInt(moveParts[2])*(long)(0.01f));
+                } else {
+                    redTimer.set(0);
+                    blueTimer.set(0);
+                }
+                int moveType = charTable.indexOf(moveParts[0].charAt(moveParts[0].length()-1))-12;
+                if (moveType <= 3) {
+                    if(!newMode && t >= noSwapsUntil && (moveType == 1 || moveType == 2)){ // Rearrange the birth moves to be in the right order.
+                        if(moves[t].charAt(2) == 'D'){
+                            noSwapsUntil = t+2;
+                        }else{
+                            int swapWith = 0;
+                            if(t < moves.length-1 && moves[t+1].charAt(2) == 'D'){
+                                swapWith = 1;
+                            }else if(t < moves.length-2 && moves[t+2].charAt(2) == 'D'){
+                                swapWith = 2;
+                            }
+                            if(swapWith >= 1){
+                                String placeholder = moves[t+swapWith].substring(0,2)+moves[t].substring(2,moves[t].length());
+                                moves[t+swapWith] = moves[t].substring(0,2)+moves[t+swapWith].substring(2,moves[t+swapWith].length());
+                                moves[t] = placeholder;
+                                moveParts = moves[t].split("\\+");
+                                noSwapsUntil = t+swapWith+2;
+                            }
+                        }
+                    }
+                    int x = charTable.indexOf(moveParts[0].charAt(0))-12;
+                    int y = charTable.indexOf(moveParts[0].charAt(1))-12;
+                    /*if(t >= moveLimit){
+                        AIplan[AIplanIndex][0] = x;
+                        AIplan[AIplanIndex][1] = y;
+                        Debug.Log("ATARI "+(t-moveLimit)+", 0: "+x);
+                        Debug.Log("ATARI "+(t-moveLimit)+", 1: "+y);
+                        AIplanIndex++;
+                        setUpAI();
+                    }else{
+                        tap (Camera.main.WorldToScreenPoint (new Vector3 (x, y, 1f)), true, true);
+                    }*/
+                } else if (moveType == 4) {
+                    if(t >= moveLimit){
+                    }else{
+                        doTurn();
+                    }
+                } else {
+                    int endGameCause = moveType-5;
+                    if(!newMode){
+                        endGameCause = 2+3*(moveType-5);
+                    }
+                    if(endGameCause == 9){
+                        //onlineDrawOffer = 2;
+                        //setLPO(1);
+                        moveLimit = moves.length;
+                    }else if(endGameCause == 10){
+                        //onlineDrawOffer = 3;
+                        //setLPO(8);
+                        moveLimit = moves.length;
+                    }else{
+                        if(t >= moveLimit){
+                        }else{
+                            //abruptlyEndGame(endGameCause);
+                            break;
+                        }
+                    }
+                }
+            }
+            if(moveLimit < moves.length){
+                //onlineCatchUpTo = moves.Length+1;
+            }
+            //Debug.Log("WELL WELL WELL "+history.Count+"   "+onlineCatchUpTo);
+            //updatePanels();
+            updateNumbers();
+            updateLists();
+            //if(isHuman[turn] >= 1){
+                //setUpAI();
+            //}
+            //onlineDrawOffer = 0;
+            //doneLoadingOnlineGame = true;
+            return true;
+        }catch (Exception e) {
+            return false;
+        }  
+    }
     public void act(){
-        if(screen == 1){
+        if(screen == 1 && !gameEnd){
             drawTime();
-            if(redBot && redTurn && !gameEnd && task==null){             
+            if(redBot && redTurn && task==null){             
                 service = Executors.newFixedThreadPool(1);        
                 task = service.submit((Callable)new AI(allTiles,redDepth,redTurn,blueTurn,this));
-            }else if(blueBot && blueTurn && !gameEnd && task==null){  
+            }else if(blueBot && blueTurn && task==null){  
                 service = Executors.newFixedThreadPool(1);        
                 task = service.submit((Callable)new AI(allTiles,blueDepth,redTurn,blueTurn,this));
             }
-        }else if(screen == 3 && selected == 2){
-            playGame();
-            selected = 0;
         }
         if(task!=null&&task.isDone()){
             try{
@@ -131,28 +348,67 @@ public class MyWorld extends World
         killAll();
         selected = 0;
         screen = 3;
+        HEIGHT = 20;
+        WIDTH = 20;
+        timeLimit = new int[]{Integer.MAX_VALUE,Integer.MAX_VALUE,Integer.MAX_VALUE,Integer.MAX_VALUE};
+        timeBonus = 0;
         addObject(new Text("Player 1", Color.red, 70+fontScale), 200, 40);
-        addObject(new Text("Player 2", Color.blue, 70+fontScale), 670, 40);
-        SelectPlayer redPlayer = new SelectPlayer(this);
-        SelectPlayer bluePlayer = new SelectPlayer(this);
-        SelectBot redEasy = new SelectBot(this, 0);
-        SelectBot blueEasy = new SelectBot(this, 0);
-        SelectBot redMed = new SelectBot(this, 2);
-        SelectBot blueMed = new SelectBot(this, 2);
-        SelectBot redHard = new SelectBot(this, 4);
-        SelectBot blueHard = new SelectBot(this, 4);
-        addObject(redPlayer, 200,150);
-        addObject(redEasy, 200, 250);
-        addObject(bluePlayer, 670,150);
-        addObject(blueEasy, 670, 250);
-        addObject(redMed, 200,350);
-        addObject(redHard, 200, 450);
-        addObject(blueMed, 670,350);
-        addObject(blueHard, 670, 450);
-        addObject(new MainMenu(this), 435,530);
-        redSelects.addAll(Arrays.asList(redEasy, redMed, redHard ,redPlayer));
-        blueSelects.addAll(Arrays.asList(blueEasy, blueMed, blueHard ,bluePlayer));
-        
+        addObject(new SelectPlayers(this, 6),200,120);
+        addObject(new Text("Player 2", Color.blue, 70+fontScale), 200, 200);
+        addObject(new SelectPlayers(this, 6),200,280);
+        addObject(new BoardSize(this),500,120);
+        addObject(new Text("20x20",30),500,150);
+        addObject(new ChangeRules(this),500,240);
+        drawRules();
+        addObject(new TimeLimit(this),750,120);
+        addObject(new Text("Untimed",30),750,180);
+        addObject(new TimeBonus(this),750,240);
+        addObject(new Text("0s",30),750,300);
+        addObject(new PlayGame(this),435,450);
+        addObject(new MainMenu(this), 435,530);      
+    }
+    public void setBoardSize(int width,int height){
+        WIDTH=width;
+        HEIGHT=height;        
+        if(WIDTH >20){
+            WIDTH = 20;
+        }else if(WIDTH<2){
+            WIDTH = 2;
+        }
+        if(HEIGHT >20){
+            HEIGHT = 20;
+        }else if(HEIGHT<2){
+            HEIGHT = 2;
+        }
+        allTiles = new Tile[WIDTH][HEIGHT];
+        if(screen==3){
+            removeObjects(getObjectsAt(500,150,Text.class));
+            String dimensions = String.valueOf(WIDTH)+"x"+String.valueOf(HEIGHT);
+            addObject(new Text(dimensions,30),500,150);
+        }else if(screen==1){
+            playGame();
+        }
+    }
+    public void setTimeLimit(int hours,int minutes,int seconds, int milliseconds){
+        timeLimit = new int[]{hours,minutes,seconds,milliseconds};
+        if(screen==3){
+            removeObjects(getObjectsAt(750,180,Text.class));
+            if(hours==Integer.MAX_VALUE){
+                addObject(new Text("Untimed",30),750,180);
+            }else{
+                String maxTimeString = String.valueOf(hours)+":"+
+                    String.valueOf(minutes)+":"+
+                    String.valueOf(seconds);
+                addObject(new Text(maxTimeString,30),750,180);
+            }
+        }
+    }
+    public void setTimeBonus(int seconds){
+        timeBonus = seconds;
+        if(screen==3){
+            removeObjects(getObjectsAt(750,300,Text.class));
+            addObject(new Text(String.valueOf(seconds)+"s",30),750,300);
+        }
     }
     public void mainMenu(){
         killAll();
@@ -207,9 +463,11 @@ public class MyWorld extends World
         if(redTurn){
             redTimer.unpause();
             blueTimer.pause();
+            blueTimer.add(-1*timeBonus);
         }else if(blueTurn){
             redTimer.pause();
             blueTimer.unpause();
+            redTimer.add(-1*timeBonus);
         }else{
             redTimer.pause();
             blueTimer.pause();
@@ -319,6 +577,15 @@ public class MyWorld extends World
         if(blueTime != null){
             removeObject(blueTime);
         }
+        if(Stopwatch.isGreaterThan(redTimes,timeLimit)){
+            JFrame frame = new JFrame("Game Over");
+            JOptionPane.showMessageDialog(frame, "Blue Wins!", "Game Over", 1);
+            gameEnd=true;
+        }else if(Stopwatch.isGreaterThan(blueTimes,timeLimit)){
+            JFrame frame = new JFrame("Game Over");
+            JOptionPane.showMessageDialog(frame, "Red Wins!", "Game Over", 1);
+            gameEnd=true;
+        }
         String redS = "";
         String blueS = "";
         for(int i = 0; i<4; i++){            
@@ -350,6 +617,10 @@ public class MyWorld extends World
                         writer.print("R");
                     }else if(t.isBlue){
                         writer.print("B");
+                    }else if(t.isRed){
+                        writer.print("R");
+                    }else if(!t.isDead){
+                        writer.print("N");
                     }else{
                         writer.print(".");
                     }
@@ -376,8 +647,10 @@ public class MyWorld extends World
                 writer.close();
             }
         }
+        Object[] out = {new JTextField(getCaryString())};
+        JOptionPane.showConfirmDialog(null, out, "Board String", JOptionPane.DEFAULT_OPTION);
     }
-    public void readBoard(String filename){
+    public void readBoard(String filename,boolean update){
         BufferedReader reader = null;
         birth.clear();
         survive.clear();
@@ -393,10 +666,23 @@ public class MyWorld extends World
                         toSet.isRed = true;
                         toSet.isBlue = false;
                         toSet.isDead = false;
+                        toSet.willRed = true;
+                        toSet.willBlue = false;
+                        toSet.willDie = false;
                     }else if(c == 'B'){
                         toSet.isRed = false;
                         toSet.isBlue = true;
                         toSet.isDead = false;
+                        toSet.willRed = false;
+                        toSet.willBlue = true;
+                        toSet.willDie = false;
+                    }else if(c == 'N'){
+                        toSet.isRed = false;
+                        toSet.isBlue = false;
+                        toSet.isDead = false;
+                        toSet.willRed = false;
+                        toSet.willBlue = false;
+                        toSet.willDie = false;
                     }else{
                         toSet.isRed = false;
                         toSet.isBlue = false;
@@ -432,10 +718,14 @@ public class MyWorld extends World
                 redTurn = false;
                 blueTurn = true;
             }
-        }catch(FileNotFoundException e){
-            JFrame frame = new JFrame("Error");
-            JOptionPane.showMessageDialog(frame, "File not found", "Error", 0);
-        }catch(IOException e){
+        }catch(FileNotFoundException FNFE){
+            try{
+                readCaryString(filename);
+            }catch(Exception e){
+                JFrame frame = new JFrame("Error");
+                JOptionPane.showMessageDialog(frame, "File not found or illegal game string", "Error", 0);
+            }
+        }catch(IOException IOE){
             JFrame frame = new JFrame("Error");
             JOptionPane.showMessageDialog(frame, "Could not read file", "Error", 0);
         }finally{
@@ -449,9 +739,14 @@ public class MyWorld extends World
         updateNumbers();
         for(Tile[] ts:allTiles){
             for(Tile t:ts){
-                t.preupdate(allTiles);
+                if(update){
+                    t.preupdate(allTiles);
+                }else{
+                    t.updateImg();
+                }
             }
         } 
+
         if(redBot&&redTurn){
             service = Executors.newFixedThreadPool(1);        
             task = service.submit((Callable)new AI(allTiles,redDepth,redTurn,blueTurn,this));
@@ -461,6 +756,9 @@ public class MyWorld extends World
             task = service.submit((Callable)new AI(allTiles,blueDepth,redTurn,blueTurn,this));
             doTurn();
         }
+    }
+    public void readCaryString(String filename)throws IOException{
+        throw new IOException();
     }
     public void displayMoves(){
         if(moveDisplay != null){
@@ -480,6 +778,8 @@ public class MyWorld extends World
             addObject(ruleText, 735, 264);
         }else if(screen==2){
             addObject(ruleText, 735, 299);
+        }else if(screen==3){
+            addObject(ruleText, 500,280);
         }
     }
     public void newBoard(){
@@ -588,12 +888,14 @@ public class MyWorld extends World
         for(char c:numbers){
             survive.add(Integer.parseInt(String.valueOf(c)));
         }
-        for(Tile[] ts:allTiles){
-            for(Tile t:ts){
-                t.preupdate(allTiles);
+        if(screen != 3){
+            for(Tile[] ts:allTiles){
+                for(Tile t:ts){
+                    t.preupdate(allTiles);
+                }
             }
-        }
-        newBoard();
+            newBoard();
+        }     
         drawRules();
     }
     public void setBrush(int color, GreenfootImage img){
@@ -609,7 +911,43 @@ public class MyWorld extends World
             }
         }
     }
+    public void tutorialTileCount(){
+        if(tileAText != null){
+            removeObject(tileAText);
+        }
+        if(tileBText != null){
+            removeObject(tileBText);
+        }
+        String aText = "Tile A is ";
+        String bText = "Tile B is ";
+        Tile a = allTiles[2][3];
+        Tile b = allTiles[7][6];
+        if(a.isDead){
+            aText+="dead and has\n";
+        }else{
+            aText+="alive and has\n";
+        }
+        if(b.isDead){
+            bText+="dead and has\n";
+        }else{
+            bText+="alive and has\n";
+        }
+        aText += String.valueOf(a.getNeighbours(allTiles).size());
+        bText += String.valueOf(b.getNeighbours(allTiles).size());
+        aText += " neighbours.";
+        bText += " neighbours.";
+        tileAText = new Text(aText,25+fontScale);
+        tileBText = new Text(bText,25+fontScale);
+        addObject(tileAText, 730, 510);
+        addObject(tileBText, 730, 565);
+    }
     public void tutorial(){
+        killAll();
+        WIDTH = 20;
+        HEIGHT = 20;
+        newBoard();
+        moveNumber = 0;
+        totalMoves = 0;
         screen = 5;
         killAll();
         createGrid();
@@ -621,26 +959,66 @@ public class MyWorld extends World
         addObject(new Text("Cells:",30),650,70);
         addObject(new Text("Player 2",30),660,111);
         addObject(new Text("Cells:",30),650,161);
-        tutText= new Text("Welcome to the\n"+
-            "tutorial,\n"+ 
-            "click \"Next\"\n"+
-            "to continue", 
-            Color.black, 30+fontScale);
+        tutText= new Text(
+            "Conway's Game of Life\n"+
+            "consists of live(white)\n"+
+            "and dead(black) cells\n"+
+            "Click around to experiment.\n"+
+            "Click \"Next\" to continue",
+            Color.black, 25+fontScale);
         addObject(new Next(this),640,227);
-        addObject(new MainMenu(this), 735, 330);
-        addObject(tutText, 730, 500);      
+        addObject(new MainMenu(this), 735, 300);
+        addObject(tutText, 730, 420);
+        addObject(new Text("A",30+fontScale),75,105);
+        addObject(new Text("B",30+fontScale),225,195);
+        readBoard("tutorial/tutorial0",false);
+        tutorialTileCount();
     }
     public void tutorial2(){
         screen = 6;
+        if(tileAText != null){
+            removeObject(tileAText);
+        }
+        if(tileBText != null){
+            removeObject(tileBText);
+        }
+        moveNumber = 0;
+        totalMoves = 0;
         removeObject(tutText);
+        removeObjects(getObjectsAt(75,105,Text.class));
+        removeObjects(getObjectsAt(225,195,Text.class));
         addObject(new LearnMore(this),750,227);
-        tutText= new Text("The basis of this game\n"+
-            "is Conway's game of life.\n"+
-            "Click \"Learn More\" to\n"+
-            "learn more about\n"+
-            "Conway's game of life.", 
-            Color.black, 25+fontScale);
-        addObject(tutText, 730, 500);
+        addObject(new EndMove(this), 735, 360);
+        tutText= new Text(
+            "When a turn ends, dead cells\n"+
+            "with exactly 3 neighbours\n"+
+            "become alive. Live cells\n"+
+            "only stay alive if they have\n"+
+            "2 or 3 neighbours.\n"+
+            "dot in the center of a\n"+
+            "cell show what it will\n"+
+            "be in the next generation.", 
+            Color.black, 24+fontScale);
+        readBoard("tutorial/tutorial0",true);
+        addObject(tutText, 735, 500);
+    }
+    public void tutorial5(){
+        screen = 9;
+        moveNumber = 0;
+        totalMoves = 0;
+        removeObject(tutText);
+        removeObjects(getObjects(LearnMore.class));
+        createGrid();
+        randomizeGrid();
+        tutText= new Text(
+            "Let's add colors to the\n"+
+            "living cells. When cells\n"+
+            "are born, they take on the\n"+
+            "color of the majority of\n"+
+            "their neighbours. They stay\n"+
+            "that color until they die.", 
+            Color.black, 24+fontScale);
+        addObject(tutText, 735, 500);
     }
     public void tutorial3(){
         screen = 7;
@@ -651,14 +1029,14 @@ public class MyWorld extends World
         removeObjects(getObjects(LearnMore.class));
         removeObjects(getObjects(Next.class));
         removeObject(tutText);
-        addObject(new EndMove(this),735,227);
-        tutText= new Text("Every turn, you can kill an\n"+
-        "enemy cell. The goal of the\n"+
-        "game is to kill all enemy \n"+
-        "cells. Try it!(You are red)",
+        tutText= new Text(
+            "Every turn, you can kill an\n"+
+            "enemy cell. The goal of the\n"+
+            "game is to kill all enemy \n"+
+            "cells. Try it!(You are red)",
         Color.black, 25+fontScale);;
         addObject(tutText, 730, 500);
-        readBoard("tutorial/tutorial0");
+        readBoard("tutorial/tutorial5",true);
     }
     public void tutorial4(){
         screen=8;
@@ -669,316 +1047,17 @@ public class MyWorld extends World
         blueTurn = false;
         doneTurn = false;
         removeObject(tutText);
-        tutText=new Text("You can also sacrafice\n"+
-        "two of your own cells to\n"+
-        "create a new cell!\n"+
-        "Try to save your cells.",
+        tutText=new Text(
+            "You can also sacrafice\n"+
+            "two of your own cells to\n"+
+            "create a new cell! Click\n"+
+            "on two of your own cells,\n"+
+            "then click on a dead cell.\n"+
+            "Try to save your cells.",
         Color.black, 25+fontScale);
         addObject(tutText, 730, 500);
-        readBoard("tutorial/tutorial1");
+        readBoard("tutorial/tutorial6",true);
     }
-    /*public double getFutureRatio(int[] square, int depth, Tile[][] board){
-        Tile toKill = board[square[0]][square[1]];
-        double redCount = 0;
-        double blueCount = 0;
-        toKill.isRed = false;
-        toKill.isBlue = false;
-        toKill.isDead = true;
-        toKill.updateNeighbours(board);
-        //writeBoard("before.txt", board);
-        iterate(depth, board);
-        //writeBoard("after.txt", board);
-        for(Tile[] ts:board){
-            for(Tile t:ts){
-                if(t.isRed){
-                    redCount++;
-                }else if(t.isBlue){
-                    blueCount++;
-                }
-            }
-        }
-        if(blueCount==0){
-            return 2147483647;
-        }else{
-            return redCount/blueCount;
-        }
-    }
-    public boolean checkForSquares(){
-        ArrayList<Tile> sacraficeList = new ArrayList<Tile>();
-        int x=0;
-        int y=0;
-        findSquare:
-        for(x=0; x<20; x++){
-            for(y=0; y<20; y++){
-                Tile toCheck = allTiles[x][y];
-                if((toCheck.isBlue && redTurn) || (toCheck.isRed && blueTurn)){
-                    int state=toCheck.getState();
-                    try{
-                        if(allTiles[x+1][y].getState()==state && allTiles[x+1][y+1].getState()==state && allTiles[x][y+1].getState()==state){
-                            break findSquare;
-                        }
-                    }catch(Exception e){}
-                }
-                if(x==19 && y== 19){
-                    return false;
-                }
-            }
-        }
-        findEasySacrafices:
-        for(int x2=0; x2<20; x2++){
-            for(int y2=0; y2<20; y2++){
-                Tile toCheck = allTiles[x2][y2];
-                if(((toCheck.isRed && redTurn) || (toCheck.isBlue && blueTurn)) && toCheck.willDie){
-                    sacraficeList.add(toCheck);
-                }
-                if(sacraficeList.size()==2){
-                    break findEasySacrafices;
-                }
-            }
-        }
-        if(sacraficeList.size()<2){
-            findOtherSacrafices:
-            for(int x2=0; x2<20; x2++){
-                for(int y2=0; y2<20; y2++){
-                    Tile toCheck = allTiles[x2][y2];
-                    int[] neighbours = toCheck.getNeighbourCount(allTiles);
-                    int neighbourCount = neighbours[0]+neighbours[1]+neighbours[2];
-                    ArrayList<Tile> neighbourList = toCheck.getNeighbours(allTiles);
-                    for(Tile t:neighbourList){
-                        if(sacraficeList.contains(t)){
-                            neighbourCount--;
-                        }
-                    }
-                    if(((toCheck.isRed && redTurn) || (toCheck.isBlue && blueTurn)) && neighbourCount==3){
-                        sacraficeList.add(toCheck);
-                    }
-                    if(sacraficeList.size()==2){
-                        break findOtherSacrafices;
-                    }
-                }
-            }
-        }
-        if(sacraficeList.size()<2){
-            return false;
-        }
-        for(Tile t:sacraficeList){
-            t.isBlue=false;
-            t.isRed=false;
-            t.isDead=true;
-            t.preupdate(allTiles);
-            t.updateNeighbours(allTiles);
-        }
-        for(int x2=-1; x2<=2; x2++){
-            for(int y2=-1; y2<=2; y2++){
-                if((x2>-1 && x2<2 && (y2==-1 || y2==2))||
-                (y2>-1 && y2<2 && (x2==-1 || x2==2))){
-                    try{
-                        Tile toSummon = allTiles[x+x2][y+y2];
-                        toSummon.isRed = redTurn;
-                        toSummon.isBlue = blueTurn;
-                        toSummon.isDead = false;
-                        toSummon.preupdate(allTiles);
-                        toSummon.updateNeighbours(allTiles);
-                        return true;
-                    }catch(Exception e){}
-                }
-            }
-        }
-        return false;
-    }
-    public boolean squareCrawl(){      
-        int redX=0;
-        int redY=0;
-        int blueX=0;
-        int blueY=0;
-        findRedSquare:
-        for(redX=0; redX<20; redX++){
-            for(redY=0; redY<20; redY++){
-                Tile toCheck = allTiles[redX][redY];
-                if(toCheck.isRed){
-                    int state=toCheck.getState();
-                    try{
-                        if(allTiles[redX+1][redY].getState()==state && allTiles[redX+1][redY+1].getState()==state && 
-                        allTiles[redX][redY+1].getState()==state && allTiles[redX][redY-1].getState()==0 && allTiles[redX+1][redY-1].getState()==0 &&
-                        allTiles[redX-1][redY].getState()==0 && allTiles[redX-1][redY+1].getState()==0 && allTiles[redX][redY+2].getState()==0 &&
-                        allTiles[redX+1][redY+2].getState()==0 && allTiles[redX+2][redY+1].getState()==0 && allTiles[redX+2][redY].getState()==0){
-                            break findRedSquare;
-                        }
-                    }catch(Exception e){}
-                }
-                if(redX==19 && redY == 19){
-                    return false;
-                }
-            }
-        }
-        findBlueSquare:
-        for(blueX=0; blueX<20; blueX++){
-            for(blueY=0; blueY<20; blueY++){
-                Tile toCheck = allTiles[blueX][blueY];
-                if(toCheck.isBlue){
-                    int state=toCheck.getState();
-                    try{
-                        if(allTiles[blueX+1][blueY].getState()==state && allTiles[blueX+1][blueY+1].getState()==state && 
-                        allTiles[blueX][blueY+1].getState()==state && allTiles[blueX][blueY-1].getState()==0 && allTiles[blueX+1][blueY-1].getState()==0 &&
-                        allTiles[blueX-1][blueY].getState()==0 && allTiles[blueX-1][blueY+1].getState()==0 && allTiles[blueX][blueY+2].getState()==0 &&
-                        allTiles[blueX+1][blueY+2].getState()==0 && allTiles[blueX+2][blueY+1].getState()==0 && allTiles[blueX+2][blueY].getState()==0){
-                            break findBlueSquare;
-                        }
-                    }catch(Exception e){}
-                }
-                if(blueX==19 && blueY == 19){
-                    return false;
-                }
-            }
-        }
-        Tile sacrafice1=null;
-        Tile sacrafice2=null;
-        Tile summon=null;
-        if(redY-blueY>2){
-            if(redTurn){
-                sacrafice1=allTiles[redX][redY+1];
-                sacrafice2=allTiles[redX+1][redY+1];
-                summon=allTiles[redX][redY-1];
-            }else if(blueTurn){
-                sacrafice1=allTiles[blueX][blueY];
-                sacrafice2=allTiles[blueX+1][blueY];
-                summon=allTiles[blueX][blueY+2];
-            }
-        }else if(redY-blueY<-2){
-            if(redTurn){               
-                sacrafice1=allTiles[redX][redY];
-                sacrafice2=allTiles[redX+1][redY];
-                summon=allTiles[redX][redY+2];
-            }else if(blueTurn){
-                sacrafice1=allTiles[blueX][blueY+1];
-                sacrafice2=allTiles[blueX+1][blueY+1];
-                summon=allTiles[blueX][blueY-1];
-            }
-        }else if(redX-blueX<0){
-            if(redTurn){               
-                sacrafice1=allTiles[redX][redY];
-                sacrafice2=allTiles[redX][redY+1];
-                summon=allTiles[redX+2][redY];
-            }else if(blueTurn){
-                sacrafice1=allTiles[blueX+1][blueY];
-                sacrafice2=allTiles[blueX+1][blueY+1];
-                summon=allTiles[blueX-1][blueY];
-            }
-        }else if(redX-blueX>0){
-            if(redTurn){
-                sacrafice1=allTiles[redX+1][redY];
-                sacrafice2=allTiles[redX+1][redY+1];
-                summon=allTiles[redX-1][redY];
-            }else if(blueTurn){
-                sacrafice1=allTiles[blueX][blueY];
-                sacrafice2=allTiles[blueX][blueY+1];
-                summon=allTiles[blueX+2][blueY];
-            }
-        }
-        if(sacrafice1 != null && sacrafice2 !=null && summon !=null){
-            sacrafice1.isRed=false;
-            sacrafice1.isBlue=false;
-            sacrafice1.isDead=true;
-            sacrafice2.isRed=false;
-            sacrafice2.isBlue=false;
-            sacrafice2.isDead=true;
-            summon.isDead=false;
-            if(redTurn){
-                summon.isBlue=false;
-                summon.isRed=true;
-            }else if(blueTurn){
-                summon.isBlue=true;
-                summon.isRed=false;
-            }
-        }
-        sacrafice1.preupdate(allTiles);
-        sacrafice1.updateNeighbours(allTiles);
-        sacrafice2.preupdate(allTiles);
-        sacrafice2.updateNeighbours(allTiles);
-        summon.preupdate(allTiles);
-        summon.updateNeighbours(allTiles);
-        return true;
-    }
-    public void makeMove(int depth){
-        if(depth == 0){
-            makeRandomMove();
-            return;
-        }
-        double[] move = {0,0,0};
-        Tile[][] board = new Tile[20][20];
-        if(blueTurn){
-            move=new double[]{0,0,2147483647};
-        }
-        for(int x = 0; x < 20; x++){
-            for(int y = 0; y < 20; y++){
-                Tile toAdd = new Tile(this, x, y);
-                board[x][y]=toAdd;
-            }
-        }
-        for(int x=0; x<20; x++){
-            for(int y=0; y<20; y++){
-                if(allTiles[x][y].getState()==1||allTiles[x][y].getState()==2){
-                    int[] coords = {x,y};
-                    for(int tileX=0; tileX<20; tileX++){
-                        for(int tileY=0; tileY<20; tileY++){
-                            Tile newTile = board[tileX][tileY];
-                            Tile toClone = allTiles[tileX][tileY];
-                            newTile.isRed = toClone.isRed;
-                            newTile.isBlue = toClone.isBlue;
-                            newTile.isDead = toClone.isDead;
-                            newTile.willDie = toClone.willDie;
-                            newTile.willRed = toClone.willRed;
-                            newTile.willBlue = toClone.willBlue;
-                        }
-                    }
-                    double[] newMove = new double[3];
-                    newMove[0]=x;
-                    newMove[1]=y;
-                    if((reds.size()+blues.size())<16){
-                        newMove[2]=getFutureRatio(coords, 2, board);   
-                    }else{
-                        newMove[2]=getFutureRatio(coords, depth, board);       
-                    }
-                    if((redTurn && newMove[2]>move[2])||(blueTurn && newMove[2]<move[2])){
-                        move = newMove;
-                    }
-                }
-            }
-        }
-        if(((reds.size()/blues.size()) == move[2]) &&
-           (redTurn && redDepth == 4 && ((blues.size() % 4)==0) && blues.size()==4 && reds.size()==4)||
-           (blueTurn && blueDepth == 4 && ((reds.size()) % 4==0) && reds.size()==4 && blues.size()==4)){
-            if(squareCrawl()){
-                return;
-            }
-        }
-        if(((reds.size()/blues.size()) == move[2]) &&
-           (redTurn && redDepth == 4 && ((blues.size() % 4)==0) && blues.size()<=12 && reds.size()>4)||
-           (blueTurn && blueDepth == 4 && ((reds.size()) % 4==0) && reds.size()<=12 && blues.size()>4)){
-            if(checkForSquares()){
-                return;
-            }
-        }
-        Tile toMove = allTiles[(int)move[0]][(int)move[1]];
-        toMove.isRed = false;
-        toMove.isBlue = false;
-        toMove.isDead = true;
-        toMove.preupdate(allTiles);
-        toMove.updateNeighbours(allTiles);
-    }
-    public void makeRandomMove(){
-        int tileX = Greenfoot.getRandomNumber(20);
-        int tileY = Greenfoot.getRandomNumber(20);
-        Tile t = allTiles[tileX][tileY];
-        while(!((t.isBlue && redTurn)||(t.isRed && blueTurn))){
-            tileX = Greenfoot.getRandomNumber(20);
-            tileY = Greenfoot.getRandomNumber(20);
-            t = allTiles[tileX][tileY];
-        }
-        t.isRed=false;
-        t.isBlue=false;
-        t.isDead=true;
-    }*/
     public void setTurn(int turnNumber){
         for(Tile[] ts:allTiles){
             for(Tile t:ts){
@@ -995,8 +1074,7 @@ public class MyWorld extends World
         }
         updateNumbers();
     }
-    public String test(){
-        return System.getProperty("os.name");
-
+    public void aaaaa(){
+        writeBoard("",allTiles);
     }
 }

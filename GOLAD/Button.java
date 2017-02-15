@@ -13,6 +13,7 @@ public abstract class Button extends Actor
     //Text text;
     int height;
     int width;
+    int canDoAction=-1;
     boolean mouseWasDown = false;
     /*public Button(MyWorld w, Color backColor, int height,
                   int width, String text, Color textColor, int textSize){
@@ -39,11 +40,9 @@ public abstract class Button extends Actor
     }
     public void act(){
         MouseInfo cursor = Greenfoot.getMouseInfo();
-        if(Greenfoot.mouseClicked(this))
-        {
+        if(Greenfoot.mouseClicked(this)|| Greenfoot.mouseClicked(getOneIntersectingObject(Text.class))){
             MouseInfo mouse=Greenfoot.getMouseInfo();
             int mX=mouse.getX(), mY=mouse.getY();
-            // with text top at 80, bottom at 100, left at 350, and right at 450
             if(cursor != null &&
                mX >= (getX()-width/2)&&
                mX <= (getX()+width/2) &&
@@ -53,7 +52,10 @@ public abstract class Button extends Actor
                 clickAction();
             }
         }
-        
+        if(canDoAction <2){
+            canDoAction++;
+        }
+        return;
     }
     public abstract void clickAction();
     public abstract void rest();

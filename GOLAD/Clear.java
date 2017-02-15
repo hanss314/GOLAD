@@ -15,6 +15,7 @@ public class Clear extends Button
     public void clickAction(){
         w.moveNumber = 0;
         w.totalMoves = 0;
+        w.gameEnd = false;
         w.sandbox();
     }
 }
