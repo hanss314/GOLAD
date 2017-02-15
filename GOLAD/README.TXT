@@ -1,11 +1,16 @@
-GOLAD
-by hanss314
-I made this because carykh didn't upload his awesome version :(
+# GOLAD
+I made this because [carykh](https://www.youtube.com/user/carykh)'s version is iOS only :(
 
-Red and blue should start with the same number of squares if they don't just press new game until they do.
-watch cary's video for instructions on how to play.
-https://www.youtube.com/watch?v=f8RDs2u92MI
-https://www.youtube.com/watch?v=SKQJlvqhDzQ
+To play the game, [click here](https://github.com/hanss314/GOLAD/archive/master.zip) to download the repository, extract the .zip file, then run the .jar file. (this requires Java 8 to be installed!)
+  
+Watch [this](https://www.youtube.com/watch?v=JkGZ2Hl1l8c) video for instructions on how to play and some background. Alternatively, you can play the tutorial provided in the game.
 
-open .jar file if you just want to play.
+**This version does not have online play.**
 
+## To Do List
+
+These are features I plan on doing eventually™. If you would like to do some of these for me, feel free. You can also suggest new features at the [issues page](https://github.com/hanss314/GOLAD/issues).
+
+- Make hard AI consider opponent moves in calculation
+
+- Implement Cary's gameStrings
