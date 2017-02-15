@@ -32,6 +32,12 @@ public class Stopwatch
         int[] value = {hours,minutes,seconds,milliseconds};
         return value;
     }
+    public void add(long seconds){
+        recordedTime += seconds*1000*1000000;
+    }
+    public void set(long seconds){
+        recordedTime = seconds*1000*1000000;
+    }
     public void pause(){
         recordedTime = getElapsedTime();
         paused = true;
@@ -40,6 +46,34 @@ public class Stopwatch
         if(paused){
             startTime = System.nanoTime();
             paused = false;
+        }
+    }
+    public static boolean isGreaterThan(int[] a, int[] b){
+        try{
+            for(int i = 0; i<a.length; i++){
+                if(a[i]>b[i]){
+                    return true;
+                }else if(a[i]<b[i]){
+                    return false;
+                }
+            }
+            return false;
+        }catch(Exception e){
+            return true;
+        }
+    }
+    public static boolean isLessThan(int[] a, int[] b){
+        try{
+            for(int i = 0; i<a.length; i++){
+                if(a[i]<b[i]){
+                    return true;
+                }else if(a[i]>b[i]){
+                    return false;
+                }
+            }
+            return false;
+        }catch(Exception e){
+            return false;
         }
     }
 }

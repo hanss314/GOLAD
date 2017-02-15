@@ -53,8 +53,27 @@ public class Tile extends Button
         getLifeRules();
     }
     public void rest(){}
+    public void setState(int state){
+        if(state==0){
+            isRed=false;
+            isBlue=false;
+            isDead=true;
+        }else if(state==1){
+            isRed=true;
+            isBlue=false;
+            isDead=false;
+        }else if(state==2){
+            isRed=false;
+            isBlue=true;
+            isDead=false;
+        }else if(state==3){
+            isRed=false;
+            isBlue=false;
+            isDead=false;
+        }
+    }
     public void clickAction(){
-        if(((w.screen == 1) && ((!w.redBot || !w.redTurn)&&(!w.blueBot || !w.blueTurn))) || w.screen > 6){
+        if(((w.screen == 1) && ((!w.redBot || !w.redTurn)&&(!w.blueBot || !w.blueTurn))) || w.screen == 7 || w.screen ==8){
             if(!(isDead||isRed||isBlue)){
                 return;
             }
@@ -141,6 +160,30 @@ public class Tile extends Button
                 case 3: isRed=false;
                         isBlue = false;
                         isDead = false;
+                        break;
+            }
+        }else if(w.screen == 5){
+            isDead = !isDead;
+            willDie = isDead;
+            updateImg();
+            w.tutorialTileCount();
+            return;
+        }else if(w.screen == 6){
+            isDead = !isDead;
+            willDie = isDead;
+        }else if(w.screen == 9){
+            switch(getState()){
+                case 0: isRed=true;
+                        isBlue = false;
+                        isDead = false;
+                        break;
+                case 1: isRed=false;
+                        isBlue = true;
+                        isDead = false;
+                        break;
+                case 2: isRed=false;
+                        isBlue = false;
+                        isDead = true;
                         break;
             }
         }

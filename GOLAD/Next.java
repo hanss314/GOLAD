@@ -17,6 +17,8 @@ public class Next extends Button
         if(screen==5){
             w.tutorial2();
         }else if(screen==6){
+            w.tutorial5();
+        }else if(screen==9){
             w.tutorial3();
         }           
     }
