@@ -13,4 +13,6 @@ These are features I plan on doing eventually™. If you would like to do some o
 
 - Make hard AI consider opponent moves in calculation
 
-- Implement Cary's gameStrings
+- Implement Cary's gameStrings (Almost done!)
+
+- Von Neumann neighborhoods 
