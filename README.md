@@ -5,6 +5,8 @@ To play the game, [click here](https://github.com/hanss314/GOLAD/archive/master.
   
 Watch [this](https://www.youtube.com/watch?v=JkGZ2Hl1l8c) video for instructions on how to play and some background. Alternatively, you can play the tutorial provided in the game.
 
+Stay tuned for more releases as I update this regularly
+
 **This version does not have online play.**
 
 ## To Do List
@@ -14,3 +16,5 @@ These are features I plan on doing eventually™. If you would like to do some o
 - Make hard AI consider opponent moves in calculation
 
 - Von Neumann neighborhoods 
+
+- Add online play?...
