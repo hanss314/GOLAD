@@ -13,7 +13,7 @@ Ezequiel Keimel made a Javascript version which can be found [here](https://popc
 
 ## To Do List
 
-These are features I plan on doing eventually™. If you would like to do some of these for me, feel free. You can also suggest new features at the [issues page](https://github.com/hanss314/GOLAD/issues).
+These are features I plan on doing eventually™. You can also suggest new features at the [issues page](https://github.com/hanss314/GOLAD/issues).
 
 - Make hard AI consider opponent moves in calculation
 
