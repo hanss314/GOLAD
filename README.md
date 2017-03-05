@@ -5,7 +5,7 @@ To play the game, [click here](https://github.com/hanss314/GOLAD/archive/master.
   
 Watch [this](https://www.youtube.com/watch?v=JkGZ2Hl1l8c) video for instructions on how to play and some background. Alternatively, you can play the tutorial provided in the game.
 
-~~Stay tuned for more releases as I update this regularly~~
+~~Stay tuned for more releases as I update this regularly~~ I'm not working on this anymore. I'll fix issues though
 
 Ezequiel Keimel made a Javascript version which can be found [here](https://popclom.github.io/GOLAD/)
 
@@ -17,4 +17,4 @@ These are features I plan on doing eventually™. You can also suggest new featu
 
 - Make hard AI consider opponent moves in calculation
 
-- Von Neumann neighborhoods 
+- Von Neumann neighborhoods
